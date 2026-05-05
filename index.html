@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMA Final Question Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                 data/scm_paper16_dec2025.json           900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10 transition-colors">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-brand-600 dark:text-brand-500 tracking-tight">CMA Final Practice</h1>
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Toggle Dark Mode">
+                <svg id="theme-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-8">
+        
+        <div class="mb-6 flex items-center justify-between min-h-[40px]">
+            <h2 id="step-title" class="text-2xl font-semibold">Select Group</h2>
+            <button id="btn-back" class="hidden px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back
+            </button>
+        </div>
+
+        <div id="content-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in">
+            <!-- Content injected here via JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 text-center text-sm text-gray-500 dark:text-gray-400 mt-auto transition-colors">
+        <p>Keep Studying 📙</p>
+        <p>Made By Bipin ❤️</p>
+    </footer>
+
+    <script>
+        // --- 1. DYNAMIC DATA STORAGE ---
+        let questionData = [];
+
+        // --- 2. STATE MANAGEMENT ---
+        let currentState = {
+            level: 0, // 0: Group, 1: Paper, 2: Module, 3: Topic, 4: Year, 5: Questions
+            group: null,
+            paper: null,
+            module: null,
+            topic: null,
+            year: null
+        };
+
+        // --- 3. DOM ELEMENTS ---
+        const container = document.getElementById('content-container');
+        const titleEl = document.getElementById('step-title');
+        const backBtn = document.getElementById('btn-back');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        // --- 4. DATA LOADING SYSTEM ---
+        async function loadData() {
+            try {
+                let fileList = [];
+                
+                // OPTIONAL BETTER APPROACH: Try to fetch an index mapping file first
+                try {
+                    const indexRes = await fetch('data/index.json');
+                    if (indexRes.ok) {
+                        const indexData = await indexRes.json();
+                        fileList = indexData.map(file => `data/${file}`);
+                    } else {
+                        throw new Error('No index.json');
+                    }
+                } catch (e) {
+                    // Fallback: If index.json doesn't exist, use the static list
+                    console.info("Notice: data/index.json not found, falling back to default static list.");
+                    fileList = [
+                        "data/scm_paper16_dec2025.json",
+                        "data/scm_paper16_june2025.json",
+                        "data/scm_paper16_dec2024.json",
+                        "data/scm_paper16_june2024.json",
+                        "data/scm_paper16_dec2023.json"
+                        // Add more default files here if needed
+                    ];
+                }
+
+                // Fetch all files concurrently
+                const fetchPromises = fileList.map(async (file) => {
+                    try {
+                        const response = await fetch(file);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return await response.json();
+                    } catch (error) {
+                        console.error(`Failed to load ${file}:`, error);
+                        return []; // Return empty array so Promise.all doesn't crash completely
+                    }
+                });
+
+                const allDatasets = await Promise.all(fetchPromises);
+                
+                // Merge all arrays into one flat array
+                questionData = allDatasets.flat();
+
+                if (questionData.length === 0) {
+                    throw new Error("No data loaded. Check if the /data/ folder and JSON files exist and are accessible.");
+                }
+
+                console.log(`Successfully loaded ${questionData.length} questions.`);
+
+            } catch (error) {
+                console.error("Critical error loading data:", error);
+                
+                // Render error state
+                container.className = "fade-in";
+                container.innerHTML = `
+                    <div class="p-6 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800">
+                        <h3 class="font-bold text-lg mb-2">Error Loading Data</h3>
+                        <p>${error.message}</p>
+                        <p class="mt-4 text-sm font-medium">Troubleshooting:</p>
+                        <ul class="list-disc pl-5 mt-2 text-sm">
+                            <li>Ensure you are running this via a local server (e.g., VS Code Live Server). Direct file:// execution blocks fetch().</li>
+                            <li>Verify the <code>/data/</code> folder exists next to this HTML file.</li>
+                            <li>Verify the JSON files are named correctly.</li>
+                        </ul>
+                    </div>
+                `;
+                throw error; // Stop further execution
+            }
+        }
+
+        // --- 5. RENDER LOGIC ---
+        function render() {
+            // Trigger reflow for animation
+            container.classList.remove('fade-in');
+            void container.offsetWidth; 
+            container.classList.add('fade-in');
+
+            container.innerHTML = '';
+            
+            // Manage Back Button visibility
+            if (currentState.level > 0) {
+                backBtn.classList.remove('hidden');
+            } else {
+                backBtn.classList.add('hidden');
+            }
+
+            switch(currentState.level) {
+                case 0: renderGroups(); break;
+                case 1: renderPapers(); break;
+                case 2: renderModules(); break;
+                case 3: renderTopics(); break;
+                case 4: renderYears(); break;
+                case 5: renderQuestions(); break;
+            }
+        }
+
+        // Level 0: Groups
+        function renderGroups() {
+            titleEl.textContent = "Step 1: Select Group";
+            container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in";
+            
+            const groups = ["Group 3", "Group 4"];
+            groups.forEach(group => {
+                const card = createCard(group, "View Papers →", () => {
+                    currentState.group = group;
+                    currentState.level = 1;
+                    render();
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // Level 1: Papers
+        function renderPapers() {
+            titleEl.textContent = `Step 2: Papers for ${currentState.group}`;
+            container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in";
+            
+            if (currentState.group === "Group 3") {
+                const papers = ["Paper 13", "Paper 14", "Paper 15", "Paper 16"];
+                papers.forEach(paper => {
+                    const isEnabled = paper === "Paper 16";
+                    const card = createCard(
+                        paper, 
+                        isEnabled ? "Select Modules →" : "Coming Soon", 
+                        () => {
+                            if (isEnabled) {
+                                currentState.paper = paper;
+                                currentState.level = 2;
+                                render();
+                            }
+                        },
+                        isEnabled
+                    );
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 p-8 text-center bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700"><p class="text-gray-500 dark:text-gray-400">Content for Group 4 is coming soon.</p></div>`;
+            }
+        }
+
+        // Level 2: Modules
+        function renderModules() {
+            titleEl.textContent = `Step 3: Modules in ${currentState.paper}`;
+            container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in";
+
+            const paperData = questionData.filter(q => q.paper === currentState.paper);
+            const uniqueModules = [...new Set(paperData.map(q => q.module))].sort((a, b) => {
+                return a.localeCompare(b, undefined, {numeric: true});
+            });
+
+            if (uniqueModules.length === 0) {
+                container.innerHTML = `<p class="text-gray-500">No modules found.</p>`;
+                return;
+            }
+
+            uniqueModules.forEach(module => {
+                const moduleCount = paperData.filter(q => q.module === module).length;
+                const card = createCard(module, `${moduleCount} Questions available →`, () => {
+                    currentState.module = module;
+                    currentState.level = 3;
+                    render();
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // Level 3: Topics
+        function renderTopics() {
+            titleEl.textContent = `Step 4: Topics in ${currentState.module}`;
+            container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in";
+
+            const moduleData = questionData.filter(q => 
+                q.paper === currentState.paper && 
+                q.module === currentState.module
+            );
+            const uniqueTopics = [...new Set(moduleData.map(q => q.topic))];
+
+            if (uniqueTopics.length === 0) {
+                container.innerHTML = `<p class="text-gray-500">No topics found.</p>`;
+                return;
+            }
+
+            uniqueTopics.forEach(topic => {
+                const topicCount = moduleData.filter(q => q.topic === topic).length;
+                const card = createCard(topic, `${topicCount} Questions available →`, () => {
+                    currentState.topic = topic;
+                    currentState.level = 4;
+                    render();
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // Level 4: Years
+        function renderYears() {
+            titleEl.textContent = `Step 5: Select Term/Year`;
+            container.className = "grid grid-cols-1 sm:grid-cols-3 gap-4 fade-in";
+
+            const topicData = questionData.filter(q => 
+                q.paper === currentState.paper && 
+                q.module === currentState.module &&
+                q.topic === currentState.topic
+            );
+            const uniqueYears = [...new Set(topicData.map(q => q.year))];
+
+            uniqueYears.forEach(year => {
+                const yearCount = topicData.filter(q => q.year === year).length;
+                const card = createCard(year, `View ${yearCount} Questions →`, () => {
+                    currentState.year = year;
+                    currentState.level = 5;
+                    render();
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // Level 5: Questions
+        function renderQuestions() {
+            titleEl.textContent = `Questions: ${currentState.topic} (${currentState.year})`;
+            container.className = "flex flex-col gap-6 fade-in";
+
+            const finalData = questionData.filter(q => 
+                q.paper === currentState.paper && 
+                q.module === currentState.module &&
+                q.topic === currentState.topic && 
+                q.year === currentState.year
+            );
+
+            finalData.forEach(q => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden";
+                
+                const badgeColor = q.type === 'Practical' 
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800' 
+                    : q.type === 'Case Study'
+                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+                    : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+
+                qCard.innerHTML = `
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
+                        <div class="font-bold text-gray-900 dark:text-gray-100">Question No: ${q.question_no}</div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badgeColor}">${q.type}</span>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-800 dark:text-gray-200 text-lg leading-relaxed whitespace-pre-wrap">${q.question}</p>
+                    </div>
+                    <div class="px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 flex gap-4">
+                        <span>Section: ${q.section}</span>
+                        <span>Module: ${q.module}</span>
+                    </div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        // --- 6. UTILITY FUNCTIONS ---
+        function createCard(title, subtitle, onClick, isEnabled = true) {
+            const el = document.createElement('div');
+            
+            if (isEnabled) {
+                el.className = "group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-brand-500 dark:hover:border-brand-500 cursor-pointer transition-all active:scale-[0.98]";
+                el.onclick = onClick;
+            } else {
+                el.className = "bg-gray-100 dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700 opacity-60 cursor-not-allowed";
+            }
+
+            el.innerHTML = `
+                <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100 ${isEnabled ? 'group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors' : ''}">${title}</h3>
+                <p class="text-sm font-medium ${isEnabled ? 'text-brand-600 dark:text-brand-500' : 'text-gray-500 dark:text-gray-400'}">${subtitle}</p>
+            `;
+            return el;
+        }
+
+        // --- 7. EVENT LISTENERS ---
+        backBtn.addEventListener('click', () => {
+            if (currentState.level > 0) {
+                currentState.level--;
+                render();
+            }
+        });
+
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>`;
+            } else {
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>`;
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            updateThemeIcon();
+        });
+
+        // --- 8. INITIALIZE ---
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        // Show loading state initially
+        titleEl.textContent = "Loading Data...";
+        container.className = "flex justify-center items-center py-20 fade-in";
+        container.innerHTML = `
+            <div class="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600 dark:border-brand-400"></div>
+                <span>Fetching question datasets...</span>
+            </div>
+        `;
+
+        // Start Data Load Pipeline
+        loadData().then(() => {
+            render();
+        }).catch(err => {
+            titleEl.textContent = "System Error";
+        });
+
+    </script>
+</body>
+</html>
