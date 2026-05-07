@@ -12,7 +12,7 @@
                 extend: {
                     colors: {
                         brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' },
-                        accent: { 500: '#8b5cf6', 600: '#7c3aed' } // Purple for ABC Analysis
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed' }
                     },
                     boxShadow: {
                         'glow': '0 0 15px -3px rgba(139, 92, 246, 0.4)',
@@ -28,13 +28,11 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Custom scrollbar for clean look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
 
-        /* Professional Responsive Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -42,29 +40,27 @@
             font-size: 0.95rem;
         }
         th, td {
-            border: 1px solid #cbd5e1; /* slate-300 */
+            border: 1px solid #cbd5e1;
             padding: 0.75rem 1rem;
             text-align: left;
         }
         th {
-            background-color: #f8fafc; /* slate-50 */
+            background-color: #f8fafc;
             font-weight: 700;
-            color: #0f172a; /* slate-900 */
+            color: #0f172a;
         }
         tr:nth-child(even) {
-            background-color: #f1f5f9; /* slate-100 */
+            background-color: #f1f5f9;
         }
-        
-        /* Dark Mode Table Adjustments */
         .dark th, .dark td {
-            border-color: #475569; /* slate-600 */
+            border-color: #475569;
         }
         .dark th {
-            background-color: #1e293b; /* slate-800 */
-            color: #f1f5f9; /* slate-100 */
+            background-color: #1e293b;
+            color: #f1f5f9;
         }
         .dark tr:nth-child(even) {
-            background-color: #0f172a; /* slate-900 */
+            background-color: #0f172a;
         }
         .dark tr:nth-child(odd) {
             background-color: transparent;
@@ -87,8 +83,6 @@
 
     <!-- Main Content -->
     <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8 relative">
-        
-        <!-- Navigation Header -->
         <div class="mb-8 flex items-center justify-between min-h-[40px]">
             <h2 id="step-title" class="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Loading...</h2>
             <button id="btn-back" class="hidden px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm border border-transparent dark:border-slate-700">
@@ -96,26 +90,18 @@
                 Back
             </button>
         </div>
-
-        <!-- Dynamic Container -->
-        <div id="content-container" class="fade-in">
-            <!-- Content injected here via JS -->
-        </div>
-
+        <div id="content-container" class="fade-in"></div>
     </main>
 
-    <!-- Footer Watermark -->
+    <!-- Footer -->
     <footer class="mt-auto py-6 text-center text-sm font-medium text-slate-400 dark:text-slate-500 select-none">
         &bull; Keep Studying 📙 &bull; Made By Bipin ❤️
     </footer>
 
     <script>
-        // --- 1. DYNAMIC DATA STORAGE ---
         let questionData = [];
-
-        // --- 2. STATE MANAGEMENT ---
         let currentState = {
-            level: 0, // 0: Group, 1: Paper, 2: Dashboard, 3: Module, 4: Topic, 5: Year, 6: Questions, 10: ABC Analysis, 11: ABC Topic Questions
+            level: 0,
             group: null,
             paper: null,
             module: null,
@@ -123,9 +109,7 @@
             year: null
         };
 
-        // --- BROWSER HISTORY API INTEGRATION ---
         function pushStateAndRender() {
-            // Push deep copy of state to Browser History
             history.pushState(JSON.parse(JSON.stringify(currentState)), "", "");
             render();
         }
@@ -135,20 +119,17 @@
                 currentState = event.state;
                 render();
             } else {
-                // Fallback safe state
                 currentState.level = 0;
                 render();
             }
         });
 
-        // --- 3. DOM ELEMENTS ---
         const container = document.getElementById('content-container');
         const titleEl = document.getElementById('step-title');
         const backBtn = document.getElementById('btn-back');
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
 
-        // --- 4. DATA LOADING SYSTEM ---
         async function loadData() {
             try {
                 let fileList = [];
@@ -160,13 +141,17 @@
                     } else throw new Error('No index');
                 } catch (e) {
                     fileList = [
-                        "data/scm_paper16_dec2025.json",
-                        "data/scm_paper16_june2025.json",
-                        "data/scm_paper16_dec2024.json",
-                        "data/scm_paper16_june2024.json",
-                        "data/scm_paper16_dec2023.json",
-                        "data/scm_paper14_dec2023.json",
-                        "data/scm_paper14_june2024.json"// Added Paper 14
+                        "data/paper16_dec2025.json",
+                        "data/paper16_june2025.json",
+                        "data/paper16_dec2024.json",
+                        "data/paper16_june2024.json",
+                        "data/paper16_dec2023.json",
+                        "data/paper14_dec2023.json",
+                        "data/paper14_june2024.json",
+                        "data/paper14_dec2024.json",
+                        "data/paper14_june2025.json",
+                        "data/paper14_dec2025.json",
+                        "data/paper13.json"
                     ];
                 }
 
@@ -207,13 +192,11 @@
                 </div>`;
         }
 
-        // --- 5. RENDER LOGIC ---
         function render() {
             container.classList.remove('fade-in');
             void container.offsetWidth; 
             container.classList.add('fade-in');
             container.innerHTML = '';
-            
             backBtn.classList.toggle('hidden', currentState.level === 0);
 
             switch(currentState.level) {
@@ -229,7 +212,6 @@
             }
         }
 
-        // --- LEVEL 0: Groups ---
         function renderGroups() {
             titleEl.textContent = "Select Group";
             container.className = "grid grid-cols-1 sm:grid-cols-2 gap-5";
@@ -242,13 +224,11 @@
             });
         }
 
-        // --- LEVEL 1: Papers ---
         function renderPapers() {
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">${currentState.group} /</span>Papers`;
             container.className = "grid grid-cols-1 sm:grid-cols-2 gap-5";
             
             if (currentState.group === "Group 3") {
-                // Enabled all papers for Group 3
                 ["Paper 13", "Paper 14", "Paper 15", "Paper 16"].forEach(paper => {
                     container.appendChild(createCard(paper, "Open Dashboard →", () => {
                         currentState.paper = paper;
@@ -261,7 +241,6 @@
             }
         }
 
-        // --- LEVEL 2: Paper Dashboard (HOME) ---
         function renderDashboard() {
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">${currentState.paper} /</span>Dashboard`;
             container.className = "flex flex-col gap-8";
@@ -272,7 +251,6 @@
             const uniqueModules = new Set(paperData.map(q => q.module)).size;
 
             container.innerHTML = `
-                <!-- Quick Stats -->
                 <div class="grid grid-cols-3 gap-4">
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
                         <div class="text-3xl font-black text-brand-600 dark:text-brand-500 mb-1">${totalQs}</div>
@@ -288,10 +266,7 @@
                     </div>
                 </div>
 
-                <!-- Main Action Flows -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Study Mode Card -->
                     <div onclick="navigateStudyMode()" class="group relative bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:border-brand-500 cursor-pointer transition-all overflow-hidden flex flex-col justify-between min-h-[220px]">
                         <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                             <svg class="w-24 h-24 text-brand-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
@@ -306,9 +281,7 @@
                         </div>
                     </div>
 
-                    <!-- ABC Analysis Card (Highlighted) -->
                     <div onclick="navigateABCMode()" class="group relative bg-slate-900 dark:bg-slate-800 p-8 rounded-3xl border-2 border-transparent hover:border-accent-500 shadow-lg hover:shadow-glow cursor-pointer transition-all overflow-hidden flex flex-col justify-between min-h-[220px]">
-                        <!-- Gradient Background Effect -->
                         <div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 opacity-90"></div>
                         <div class="absolute top-0 right-0 w-32 h-32 bg-accent-500/20 rounded-full blur-3xl group-hover:bg-accent-500/30 transition-colors"></div>
                         
@@ -323,87 +296,61 @@
                             View Priorities <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </div>
                     </div>
-
                 </div>
             `;
         }
 
-        // Bridge functions
         window.navigateStudyMode = () => { currentState.level = 3; pushStateAndRender(); }
         window.navigateABCMode = () => { currentState.level = 10; pushStateAndRender(); }
 
-        // --- QUESTION PARSING ENGINE ---
         function formatQuestionText(text) {
             if (!text) return '';
-
-            // Render existing valid HTML tables safely
-            if (text.includes('<table')) {
-                return `<div class="overflow-x-auto mb-6">${text}</div>`;
-            }
+            if (text.includes('<table')) return `<div class="overflow-x-auto mb-6">${text}</div>`;
 
             const lines = text.split('\n');
             let htmlOut = '';
             let inTable = false;
             let tableRows = [];
 
-            // Simple escaper to protect mathematical operators from breaking HTML
             const escapeHTML = (str) => str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
-                
-                // Detect Table Format (Pipe separation)
                 if (line.includes('|')) {
                     inTable = true;
                     tableRows.push(escapeHTML(line));
                 } else {
-                    // Flush accumulated table rows
                     if (inTable) {
                         htmlOut += convertPipeTableToHTML(tableRows);
                         inTable = false;
                         tableRows = [];
                     }
-                    // Render normal paragraph text (Preserve intra-line spaces)
-                    if (line) {
-                        htmlOut += `<p class="mb-3 whitespace-pre-wrap">${escapeHTML(line)}</p>`;
-                    }
+                    if (line) htmlOut += `<p class="mb-3 whitespace-pre-wrap">${escapeHTML(line)}</p>`;
                 }
             }
-            
-            // Flush trailing tables
-            if (inTable && tableRows.length > 0) {
-                htmlOut += convertPipeTableToHTML(tableRows);
-            }
-
+            if (inTable && tableRows.length > 0) htmlOut += convertPipeTableToHTML(tableRows);
             return htmlOut;
         }
 
         function convertPipeTableToHTML(rows) {
             if (!rows || rows.length === 0) return '';
-            
             let html = '<div class="overflow-x-auto mb-6"><table class="w-full text-left border-collapse">';
-            
             rows.forEach((row, index) => {
                 const isHeader = index === 0;
                 const tag = isHeader ? 'th' : 'td';
                 let cells = row.split('|');
-                
-                // Clean up bounding pipes e.g., | A | B |
                 if(cells.length > 0 && cells[0].trim() === '') cells.shift();
                 if(cells.length > 0 && cells[cells.length-1].trim() === '') cells.pop();
-
                 html += '<tr>';
                 cells.forEach(cell => {
                     html += `<${tag} class="border border-slate-300 dark:border-slate-600 px-4 py-3 font-medium align-top">${cell.trim()}</${tag}>`;
                 });
                 html += '</tr>';
             });
-            
             html += '</table></div>';
             return html;
         }
 
-        // --- STUDY MODE FLOW (Levels 3 - 6) ---
         function renderModules() {
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">Study /</span>Modules`;
             container.className = "grid grid-cols-1 sm:grid-cols-2 gap-5";
@@ -438,7 +385,6 @@
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">${currentState.topic} /</span>Terms`;
             container.className = "grid grid-cols-2 sm:grid-cols-4 gap-4";
             const tData = questionData.filter(q => q.paper === currentState.paper && q.topic === currentState.topic);
-            
             const sortedYears = [...new Set(tData.map(q => q.year))].sort((a,b) => parseYearTerm(b) - parseYearTerm(a));
             
             sortedYears.forEach(year => {
@@ -461,7 +407,6 @@
                                  : q.type === 'Case Study' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800'
                                  : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
                 
-                // Uses updated Table Render logic
                 qCard.innerHTML = `
                     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex justify-between items-center">
                         <div class="font-bold text-slate-800 dark:text-slate-200">${q.question_no}</div>
@@ -477,7 +422,6 @@
             });
         }
 
-        // --- LEVEL 10: ABC ANALYSIS DASHBOARD ---
         function renderABCAnalysis() {
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">${currentState.paper} /</span>ABC Analysis`;
             container.className = "flex flex-col gap-6";
@@ -488,7 +432,7 @@
             container.innerHTML = `
                 <div class="inline-flex items-center gap-2 px-4 py-2 self-start bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-800/50 rounded-xl text-sm font-semibold text-accent-700 dark:text-accent-300 shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Based on Section B descriptive questions only
+                    Based on Section B descriptive questions
                 </div>
                 
                 <div id="abc-a" class="flex flex-col gap-4 mt-2">
@@ -537,12 +481,12 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
-                        <div><span class="font-medium text-slate-400 dark:text-slate-500">Sec B Appears:</span> ${topic.count} Times</div>
+                        <div><span class="font-medium text-slate-400 dark:text-slate-500">Sec B Appears:</span> <span class="text-slate-800 dark:text-slate-200 font-semibold">${topic.sectionBAppearances}</span></div>
                         <div><span class="font-medium text-slate-400 dark:text-slate-500">Last Seen:</span> <span class="text-slate-800 dark:text-slate-200 font-semibold">${topic.lastSeen}</span></div>
-                        <div><span class="font-medium text-slate-400 dark:text-slate-500">Case Study:</span> ${topic.csProbability}</div>
+                        <div class="col-span-2"><span class="font-medium text-slate-400 dark:text-slate-500">Module:</span> ${topic.module}</div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-accent-600 dark:text-accent-400 font-bold text-sm">
-                        <span>View ${topic.count} Questions</span>
+                        <span>View ${topic.sectionBAppearances} Questions</span>
                         <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </div>
                 `;
@@ -553,12 +497,10 @@
             });
         }
 
-        // --- LEVEL 11: ABC TOPIC QUESTIONS (Filtered for Section B only) ---
         function renderABCTopicQuestions() {
             titleEl.innerHTML = `<span class="text-slate-400 font-medium text-xl mr-2">ABC Analysis /</span>${currentState.topic}`;
             container.className = "flex flex-col gap-6";
 
-            // Only Section B allowed in ABC View
             const finalData = questionData.filter(q => 
                 q.paper === currentState.paper && 
                 q.topic === currentState.topic && 
@@ -577,7 +519,6 @@
                                  : q.type === 'Case Study' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800'
                                  : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
                 
-                // Uses updated Table Render logic
                 qCard.innerHTML = `
                     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -596,56 +537,73 @@
             });
         }
 
-        // ABC Algorithm
         function calculateABC(data) {
-            // STRATEGIC FILTER: Strictly consider ONLY Section B questions
-            const sectionBData = data.filter(q => q.section === 'B');
-            
             const stats = {};
-            let totalQs = sectionBData.length;
+            let totalSecBQs = 0;
+            const maxTerm = Math.max(...data.map(q => parseYearTerm(q.year)));
 
-            sectionBData.forEach(q => {
-                if (!stats[q.topic]) stats[q.topic] = { name: q.topic, count: 0, caseStudies: 0, years: [] };
-                stats[q.topic].count++;
-                if (q.type === 'Case Study') stats[q.topic].caseStudies++;
-                if (!stats[q.topic].years.includes(q.year)) stats[q.topic].years.push(q.year);
+            data.forEach(q => {
+                if (!stats[q.topic]) {
+                    stats[q.topic] = { 
+                        name: q.topic, 
+                        module: q.module,
+                        totalAppearances: 0, 
+                        sectionBAppearances: 0,
+                        recentAppearances: 0, 
+                        caseStudyBonus: 0, 
+                        yearsB: [] 
+                    };
+                }
+                let t = stats[q.topic];
+                
+                t.totalAppearances++;
+
+                let qTerm = parseYearTerm(q.year);
+                if (qTerm >= maxTerm - 50) {
+                    t.recentAppearances++;
+                }
+
+                if (q.type === 'Case Study') {
+                    t.caseStudyBonus++;
+                }
+
+                if (q.section === 'B') {
+                    t.sectionBAppearances++;
+                    totalSecBQs++;
+                    if (!t.yearsB.includes(q.year)) t.yearsB.push(q.year);
+                }
             });
 
-            let topics = Object.values(stats).map(t => {
-                t.csProbability = t.count > 0 ? ((t.caseStudies / t.count) * 100).toFixed(0) + '%' : '0%';
-                t.lastSeen = t.years.sort((a,b) => parseYearTerm(b) - parseYearTerm(a))[0];
-                
-                // Base score logic for descriptive priorities
-                let recentBonus = parseYearTerm(t.lastSeen) >= 202406 ? 15 : 0; 
-                let caseStudyBonus = t.caseStudies * 15; // Huge bonus for case study probability
-                
-                t.score = (t.count * 10) + recentBonus + caseStudyBonus;
-                return t;
+            let topics = Object.values(stats).filter(t => t.sectionBAppearances > 0);
+
+            topics.forEach(t => {
+                t.lastSeen = t.yearsB.sort((a,b) => parseYearTerm(b) - parseYearTerm(a))[0];
+                t.score = (t.sectionBAppearances * 10) + 
+                          (t.totalAppearances * 4) + 
+                          (t.recentAppearances * 3) + 
+                          (t.caseStudyBonus * 2);
             });
 
-            // Sort descending by score
             topics.sort((a,b) => b.score - a.score);
 
-            // Standard ABC Cumulative categorisation based on Section B volume
             let runningTotal = 0;
             topics.forEach(t => {
-                runningTotal += t.count;
-                let perc = runningTotal / totalQs;
-                if (perc <= 0.60) t.category = 'A';       // Top ~60% descriptive volume
-                else if (perc <= 0.85) t.category = 'B';  // Next ~25%
-                else t.category = 'C';                    // Bottom ~15%
+                runningTotal += t.sectionBAppearances;
+                let perc = runningTotal / totalSecBQs;
+                if (perc <= 0.50) t.category = 'A';
+                else if (perc <= 0.85) t.category = 'B';
+                else t.category = 'C';
             });
 
             return topics;
         }
 
-        // Utilities
         function parseYearTerm(str) {
             if(!str) return 0;
             const parts = str.split(' ');
             if(parts.length < 2) return parseInt(str) * 100;
             const m = parts[0].toLowerCase().includes('dec') ? 12 : 6;
-            return parseInt(parts[1]) * 100 + m; // e.g. "Dec 2025" -> 202512
+            return parseInt(parts[1]) * 100 + m;
         }
 
         function createCard(title, subtitle, onClick, isEnabled = true) {
@@ -663,7 +621,6 @@
             return el;
         }
 
-        // --- 6. EVENT LISTENERS ---
         backBtn.addEventListener('click', () => {
             if (currentState.level > 0) {
                 history.back();
@@ -682,7 +639,6 @@
             updateThemeIcon();
         });
 
-        // --- 7. INITIALIZE ---
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -698,7 +654,6 @@
         `;
 
         loadData().then(() => {
-            // Replace initial state so the root popstate works correctly
             history.replaceState(JSON.parse(JSON.stringify(currentState)), "", "");
             render();
         }).catch(() => {});
