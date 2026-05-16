@@ -81,61 +81,68 @@
         }
         .dark .form-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
 
-        /* Book Flipping Loader */
+        /* Realistic 3D Book Flipping Loader */
         .book-loader {
-            width: 48px;
-            height: 32px;
             position: relative;
-            perspective: 300px;
+            width: 64px;
+            height: 44px;
             margin: 0 auto;
+            perspective: 600px;
         }
-        .book-loader::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            width: 24px;
-            height: 32px;
-            background-color: #0ea5e9;
-            border-radius: 4px 0 0 4px;
-            box-shadow: inset 2px 0 0 rgba(255,255,255,0.2);
-        }
+        .book-loader::before,
         .book-loader::after {
             content: '';
             position: absolute;
-            right: 0;
-            width: 24px;
-            height: 32px;
-            background-color: transparent;
-            border: 2px solid #0ea5e9;
-            border-left: none;
-            border-radius: 0 4px 4px 0;
-            box-sizing: border-box;
+            top: 0;
+            width: 32px;
+            height: 44px;
+            border-radius: 2px 6px 6px 2px;
+            background: #0ea5e9;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+        }
+        .book-loader::before {
+            right: 50%;
+            border-radius: 6px 2px 2px 6px;
+            transform-origin: right center;
+            transform: rotateY(-5deg);
+        }
+        .book-loader::after {
+            left: 50%;
+            transform-origin: left center;
+            transform: rotateY(5deg);
+        }
+        .dark .book-loader::before,
+        .dark .book-loader::after {
+            background: #38bdf8;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
         }
         .book-page {
             position: absolute;
-            right: 0;
-            width: 24px;
-            height: 32px;
-            background-color: #0ea5e9;
-            border-radius: 0 4px 4px 0;
+            top: 0;
+            left: 50%;
+            width: 32px;
+            height: 44px;
+            background: #0ea5e9;
+            border-radius: 2px 6px 6px 2px;
             transform-origin: left center;
-            animation: flip-page 1.2s infinite linear;
-            backface-visibility: hidden;
-            z-index: 10;
+            animation: page-flip 2.5s infinite cubic-bezier(0.64, 0.04, 0.35, 1);
             border: 1px solid rgba(255,255,255,0.1);
             border-left: none;
-            box-sizing: border-box;
+            z-index: 2;
+        }
+        .dark .book-page {
+            background: #38bdf8;
         }
         .book-page:nth-child(1) { animation-delay: 0s; }
-        .book-page:nth-child(2) { animation-delay: 0.4s; }
-        .book-page:nth-child(3) { animation-delay: 0.8s; }
+        .book-page:nth-child(2) { animation-delay: 0.35s; }
+        .book-page:nth-child(3) { animation-delay: 0.7s; }
+        .book-page:nth-child(4) { animation-delay: 1.05s; }
+        .book-page:nth-child(5) { animation-delay: 1.4s; }
 
-        .dark .book-loader::before, .dark .book-page { background-color: #38bdf8; }
-        .dark .book-loader::after { border-color: #38bdf8; }
-
-        @keyframes flip-page {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(-180deg); }
+        @keyframes page-flip {
+            0% { transform: rotateY(5deg); z-index: 10; filter: brightness(1); }
+            50% { filter: brightness(0.8); }
+            100% { transform: rotateY(-185deg); z-index: 1; filter: brightness(1); }
         }
     </style>
 </head>
@@ -154,6 +161,8 @@
         </div>
         <h1 class="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100 mb-8">Strategic Preparation</h1>
         <div class="book-loader">
+            <div class="book-page"></div>
+            <div class="book-page"></div>
             <div class="book-page"></div>
             <div class="book-page"></div>
             <div class="book-page"></div>
@@ -254,12 +263,12 @@
         <main id="app-main-area" class="flex-grow max-w-5xl mx-auto w-full px-4 py-8 flex flex-col transition-all duration-300">
             
             <!-- Dynamic Navigation Header -->
-            <div id="header-row" class="mb-8 flex items-center min-h-[44px] relative w-full">
-                <button id="btn-back" class="hidden absolute left-0 px-4 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 shadow-sm border border-slate-200 dark:border-slate-700 z-10 active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back
+            <div id="header-row" class="mb-8 flex items-start md:items-center gap-4 min-h-[44px] relative w-full">
+                <button id="btn-back" class="hidden shrink-0 px-3 py-2 md:px-4 md:py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 shadow-sm border border-slate-200 dark:border-slate-700 z-10 active:scale-95">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span class="hidden sm:inline">Back</span>
                 </button>
-                <div id="step-title" class="w-full flex transition-all duration-300">
+                <div id="step-title" class="flex-1 min-w-0 flex transition-all duration-300">
                     <!-- Title injected here -->
                 </div>
             </div>
@@ -416,7 +425,7 @@
         const backBtn = document.getElementById('btn-back');
         const appMainArea = document.getElementById('app-main-area');
 
-        // Added a custom toast function
+        // Custom toast function
         window.showToast = function(msg) {
             let toast = document.getElementById('custom-toast');
             if (!toast) {
@@ -524,10 +533,10 @@
             // Dynamic Layout adjustments for centered Gateway vs Left-aligned Inner Screens
             if (currentState.level <= 1) {
                 appMainArea.classList.add('justify-center');
-                titleEl.className = "w-full flex justify-center text-center";
+                titleEl.className = "flex-1 flex justify-center text-center";
             } else {
                 appMainArea.classList.remove('justify-center');
-                titleEl.className = "w-full flex justify-start text-left pl-[80px] md:pl-[96px] pt-1 md:pt-0";
+                titleEl.className = "flex-1 flex justify-start text-left";
             }
 
             switch(currentState.level) {
@@ -1258,6 +1267,8 @@
             container.innerHTML = `
                 <div class="flex flex-col items-center gap-4 text-slate-500 dark:text-slate-400">
                     <div class="book-loader mb-2">
+                        <div class="book-page"></div>
+                        <div class="book-page"></div>
                         <div class="book-page"></div>
                         <div class="book-page"></div>
                         <div class="book-page"></div>
